@@ -25,6 +25,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             .body(message);
 }
 
+    @ExceptionHandler(UserNameExistException.class)
+    @ResponseStatus(HttpStatus.FOUND)
+    public ResponseEntity<ErrorResponse> handleUserNameExistException(UserNameExistException exception, WebRequest request){
+        LocalDateTime timestamp = LocalDateTime.now();
+        ErrorResponse message = new ErrorResponse(timestamp, HttpStatus.FOUND, Collections.singletonList(exception.getMessage()));
+        return ResponseEntity.status(HttpStatus.FOUND)
+                .body(message);
+    }
+
 
 
 

@@ -1,5 +1,6 @@
 package com.generaSrpinglSecurity.spring.config;
 
+import com.generaSrpinglSecurity.spring.ExceptionHandler.UserNameExistException;
 import com.generaSrpinglSecurity.spring.entity.Token;
 import com.generaSrpinglSecurity.spring.entity.User;
 import com.generaSrpinglSecurity.spring.repository.TokenRepository;
@@ -8,10 +9,12 @@ import com.generaSrpinglSecurity.spring.service.jswtService.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +27,13 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
 
 
-    public AuthenticationResponse register(User request){
+    public AuthenticationResponse register(User request) throws UserNameExistException {
+        Optional<User> existingUser = userRespository.findByUserName(request.getUsername()) ;
+        if (existingUser.isPresent()) {
+            throw new UserNameExistException("User already exists with username: " + request.getUsername());
+        }
+
+
         User user = new User();
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
@@ -53,7 +62,7 @@ public class AuthenticationService {
                         request.getPassword()
                 )
         );
-        User user = userRespository.findByUserName(request.getUsername()).orElseThrow();
+        User user = userRespository.findByUserName(request.getUsername()).orElseThrow(()-> new UsernameNotFoundException("User not Found"));
         String  accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
 
