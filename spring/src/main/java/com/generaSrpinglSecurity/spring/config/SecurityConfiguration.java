@@ -28,7 +28,7 @@ public class SecurityConfiguration {
 
     private final UserServiceImpl userService;
     private final JwtAuthFilter jwtAuthFilter;
-    private final CustomLogOutHandler logoutHandler ;
+//    private final CustomLogOutHandler logoutHandler ;
 
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
@@ -56,12 +56,13 @@ public class SecurityConfiguration {
                                 )
                                 .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))) .logout(l -> l
                         .logoutUrl("/api/v1/auth/logout")
-                        .addLogoutHandler(logoutHandler)
+//                        .addLogoutHandler(logoutHandler)
                         .logoutSuccessHandler((request, response, authentication) -> {
                             SecurityContextHolder.clearContext();
                             // Add logging for successful logout
                             System.out.println("Logout successful");
                         }).permitAll()
+                        .logoutUrl("/login?logout")
                 )
                 .build();
     }
